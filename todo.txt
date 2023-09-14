@@ -1,0 +1,2 @@
+- Adicionar um server.h, contendo os includes, e declaração de funções
+- Passar o server port através dos arguments

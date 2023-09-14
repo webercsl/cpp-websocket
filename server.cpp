@@ -1,14 +1,18 @@
 #include "socketUtils.h"
 #include <thread>
 #include <chrono>
-//talvez adicionar um server.h, contendo os includes, e declaração de funções
 
-void task1(bool * stop);
+void runServer(bool * stop);
+int getServerPortNumber(int argc, char *argv[], int * serverPortNumber);
 
-int main(){
-    int userInput, returnCode = 0;
-    bool stop = false;
+int main(int argc, char *argv[]){
+    int returnCode = 0;
+    int userInput, serverPortNumber;
+    bool serverRunning = false;
     std::thread serverThread;
+
+    returnCode = getServerPortNumber(argc, argv, &serverPortNumber);
+    if(returnCode != 0) goto leave;
 
     while (true)
     {
@@ -26,10 +30,17 @@ int main(){
                 goto leave;
                 break;
             case 1:
-                serverThread = std::thread(task1, &stop);
+                //Talvez Passar para função.
+                if(!serverRunning){
+                    serverRunning = true;
+                    serverThread = std::thread(runServer, &serverRunning);
+                }else{
+                    std::cout << "O servidor já esta no ar!" << std::endl;
+                }
                 break;
             case 2:
-                stop = true;
+                serverRunning = false;//passar para função e add um textinho
+                serverThread.join();
                 break;
             case 3:
                 
@@ -46,16 +57,34 @@ int main(){
     }
 
 leave:
-    serverThread.join();
+
+    if(serverRunning){
+        serverRunning = false;
+        serverThread.join();
+    }
+
     return returnCode;
 }
 
-void task1(bool * stop){
-    using namespace std::chrono_literals;
-    while (!*stop)
+void runServer(bool * serverRunning){
+    //iniciar server
+    //se o port p=for passado via args sera necessario receber ele na funcao
+
+    while (*serverRunning)
     {
-        std::cout << "isso é um teste";
-        std::cout.flush();
-        std::this_thread::sleep_for(2000ms);
+        //esperar requests
+        
     }
+
+    //fechar portas
+}
+
+int getServerPortNumber(int argc, char *argv[], int * serverPortNumber){
+    if (argc < 2) {
+        std::cout << "ERRO: Não foi passado o número da porta para o servidor." << std::endl;
+        return 1;
+    }
+
+    *serverPortNumber = atoi(argv[1]);
+    return 0;
 }
