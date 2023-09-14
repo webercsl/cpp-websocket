@@ -2,14 +2,14 @@
   "tasks": [
     {
       "type": "cppbuild",
-      "label": "C/C++: g++ build active file",
+      "label": "Build Server",
       "command": "/usr/bin/g++",
       "args": [
         "-fdiagnostics-color=always",
         "-g",
-        "${file}",
+        "${workspaceFolder}/server.cpp",
         "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
+        "${workspaceFolder}/server"
       ],
       "options": {
         "cwd": "${fileDirname}"

@@ -2,7 +2,7 @@
 #include <thread>
 #include <chrono>
 
-void runServer(bool * stop);
+void runServer(bool * serverRunning, int serverPortNumber);
 int getServerPortNumber(int argc, char *argv[], int * serverPortNumber);
 
 int main(int argc, char *argv[]){
@@ -33,14 +33,16 @@ int main(int argc, char *argv[]){
                 //Talvez Passar para função.
                 if(!serverRunning){
                     serverRunning = true;
-                    serverThread = std::thread(runServer, &serverRunning);
+                    serverThread = std::thread(runServer, &serverRunning, serverPortNumber);
                 }else{
                     std::cout << "O servidor já esta no ar!" << std::endl;
                 }
                 break;
             case 2:
-                serverRunning = false;//passar para função e add um textinho
-                serverThread.join();
+                if(serverRunning){    
+                    serverRunning = false;//passar para função e add um textinho
+                    serverThread.join();
+                }
                 break;
             case 3:
                 
@@ -66,9 +68,8 @@ leave:
     return returnCode;
 }
 
-void runServer(bool * serverRunning){
+void runServer(bool * serverRunning, int serverPortNumber){
     //iniciar server
-    //se o port p=for passado via args sera necessario receber ele na funcao
 
     while (*serverRunning)
     {
