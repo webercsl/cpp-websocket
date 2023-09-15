@@ -1,7 +1,7 @@
 - Criar o novo client
     - Menu 3 opções:
         - Enviar arquivo
-            - Estabelecer conexão
+            - OK Estabelecer conexão
             - Cadastrar informações da struct
             - Transfformar em string
             - Enviar
@@ -11,13 +11,14 @@
             - Request com um código
             - servidor retorna string com fila
 
-        - Sair
+        - OK Sair
 
 - Criar a struct para os arquivos e função para convertela em string no arquivo socketUtils.h
 - Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
 - DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
 
 - Struct
+    - Operacao enum(0 - ADD, 1 - LIST)
     - Nome do cliente char [50]
     - Conteúdo [100]
     - Data [19](2022-09-13T00:00:00) pegar datetime now

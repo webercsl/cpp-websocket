@@ -9,15 +9,26 @@ int main(int argc, char *argv[]){
     returnCode = getServerPortNumber(argc, argv, &serverPortNumber);
     if(returnCode != 0) goto leave;
 
+    system("clear");
     while (true)
     {
-        std::cout << "Menu:" << std::endl << std::endl;
+        std::cout << "======== Menu ========" << std::endl <<std::endl;
+
+        std::cout << "Status do servidor: ";
+        if(serverRunning) std::cout << "Ligado";
+        else std::cout << "Desligado";
+
+        std::cout << std::endl << "Porta: " << serverPortNumber << std::endl;
+
+        std::cout << std::endl ;
+        //futuramente adicionar tamanho da fila
+
         std::cout << "[1] - Abrir servidor" << std::endl;
         std::cout << "[2] - Fechar servidor" << std::endl;
-        std::cout << "[3] - Status servidor" << std::endl;
-        std::cout << "[4] - Mostrar lista de arquivos" << std::endl;
-        std::cout << "[0] - Sair" << std::endl;
-        
+        std::cout << "[3] - Mostrar lista de arquivos" << std::endl;
+        std::cout << "[0] - Sair" << std::endl << std::endl;
+        std::cout << "Digite a opção desejada: " << std::endl;
+
         std::cin >> userInput;
         system("clear");
         switch(userInput){
@@ -38,9 +49,6 @@ int main(int argc, char *argv[]){
                 closeServer(&serverRunning, sockfd, &serverThread);
                 break;
             case 3:
-                
-                break;
-            case 4:
                 
                 break;
             default:
