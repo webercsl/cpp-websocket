@@ -134,21 +134,24 @@ void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver/*, l
 }
 
 void processRequest(int sockfdcli){
-    char buffer[256];
-    bzero(buffer,256);
+    char buffer[REQUEST_BUFFER_SIZE];
 
-    int readResult = read(sockfdcli,buffer,255);
-    if (readResult < 0 || strlen(buffer) == 0) {
-        write(sockfdcli,"Error.", 6);
-        return;
-    }
+    while(true){
+        bzero(buffer,REQUEST_BUFFER_SIZE);
 
-    //adicionar na fila
+        int readResult = read(sockfdcli,buffer,REQUEST_BUFFER_SIZE);
+        if (readResult < 0 || strlen(buffer) == 0) {
+            write(sockfdcli,"Error.", 6);
+            return;
+        }
 
-    int writeResult = write(sockfdcli,"Request recived",15);
-    if (writeResult < 0){
-        //talez log em arquivo
-        return;
+        //adicionar na fila
+
+        int writeResult = write(sockfdcli,"Request recived",15);
+        if (writeResult < 0){
+            //talez log em arquivo
+            return;
+        }
     }
 }
 

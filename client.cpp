@@ -2,6 +2,7 @@
 
 int main(int argc, char *argv[]){
     int returnCode = 0;
+    int connectCode = -1;
     int userInput, hostPortNumber, sockfd;
 
     returnCode = getServerPortNumber(argc, argv, &hostPortNumber);
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]){
         std::cout << "[2] - Ver fila de impressão" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
-
+        
         std::cin >> userInput;
         system("clear");
         switch(userInput){
@@ -29,12 +30,13 @@ int main(int argc, char *argv[]){
                 goto leave;
                 break;
             case 1:
-                if(establishConnection(argv[1], hostPortNumber, &sockfd) == 0){
-
+                if(connectCode < 0){
+                    connectCode = establishConnection(argv[1], hostPortNumber, &sockfd);
+                }else{
+                    int a = sendNewAddRequest(sockfd);
                 }
                 break;
             case 2:
-                
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -43,8 +45,6 @@ int main(int argc, char *argv[]){
         pressAnyKeyToContinue();
         system("clear");
     }
-    
-
 
 leave:
     return returnCode;
@@ -74,6 +74,41 @@ int establishConnection(char * hostName, int hostPortNumber, int * sockfd){
 
     return 0;
 } 
+
+int registerNewRequest(request_t ** request){
+    *request = (request_t *) malloc(sizeof(request_t));
+
+    std::cout << "Digite o seu nome:" << std::endl;
+    std::cin.ignore().getline((*request)->name, sizeof((*request)->name));
+
+    std::cout << "Digite o conteúdo do arquivo" << std::endl;//Mudar para local do arquivo?
+    std::cin.getline((*request)->content, sizeof((*request)->content));
+
+    strcpy((*request)->date, getDateNowStr().c_str());
+    system("clear");
+    return 0;
+}
+
+int sendNewAddRequest(int sockfd){
+    request_t * request;
+    char buffer[REQUEST_BUFFER_SIZE];
+    bzero(buffer, REQUEST_BUFFER_SIZE);
+
+    registerNewRequest(&request);
+    request->op = ADD;
+    strcpy(buffer, requestToStr(request).c_str());
+
+    int writeResult = write(sockfd, buffer, REQUEST_BUFFER_SIZE);
+    if(writeResult < 0){
+        std::cout << "ERRO: Não foi possível realizar a escrita." <<std::endl;
+        return 1;
+    }
+
+    bzero(buffer, REQUEST_BUFFER_SIZE);
+    int readResult = read(sockfd, buffer, REQUEST_BUFFER_SIZE);
+    std::cout << buffer << std::endl;
+    return 0;
+}
 
 int getServerPortNumber(int argc, char *argv[], int * hostPortNumber){
     if (argc < 3) {
