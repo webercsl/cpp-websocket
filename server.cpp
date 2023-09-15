@@ -48,7 +48,11 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 2:
-                closeServer(&serverRunning, sockfd, &serverThread);
+                if(closeServer(&serverRunning, sockfd, &serverThread) == 0){
+                    std::cout << "Servidor fechado com sucesso." << std::endl;
+                }else{
+                    std::cout << "Erro ao fechar o servidor." << std::endl;
+                }
                 break;
             case 3:
                 printList(l);
@@ -143,7 +147,7 @@ void processRequest(int sockfdcli, list * l){
 
         int readResult = read(sockfdcli,buffer,REQUEST_BUFFER_SIZE);
         if (readResult < 0 || strlen(buffer) == 0) {
-            write(sockfdcli,"Error.", 6);
+            write(sockfdcli,"Error. Impossível ler do cliente. Esse problema pode ocorrer quando o servidor foi fechado com uma conexão ativa.", 116);
             return;
         }
 
@@ -152,12 +156,17 @@ void processRequest(int sockfdcli, list * l){
         switch(request->op){
             case ADD:
                 add(l, createNodeValue(request->name, request->content, request->date));
+                strcpy(buffer, "Registro adicionado a fila.");
                 break;
             case LIST:
+
+                break;
+            default:
+                strcpy(buffer, "Operação não reconhecida");
                 break;
         }
 
-        int writeResult = write(sockfdcli,"Request recived",15);
+        int writeResult = write(sockfdcli, buffer, strlen(buffer));
         if (writeResult < 0){
             //talez log em arquivo
             return;
