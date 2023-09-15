@@ -3,6 +3,7 @@
 int main(int argc, char *argv[]){
     int returnCode = 0;
     int userInput, serverPortNumber, sockfd;
+    list * l = initList();
     bool serverRunning = false;
     std::thread serverThread;
 
@@ -19,14 +20,14 @@ int main(int argc, char *argv[]){
         else std::cout << "Desligado";
 
         std::cout << std::endl << "Porta: " << serverPortNumber << std::endl;
+        std::cout << "Número de arquivos na fila: " << l->size << std::endl;
 
         std::cout << std::endl ;
-        //futuramente adicionar tamanho da fila
 
         std::cout << "[1] - Abrir servidor" << std::endl;
         std::cout << "[2] - Fechar servidor" << std::endl;
         std::cout << "[3] - Mostrar lista de arquivos" << std::endl;
-        //talvez adicionar um opção de impriri, ao inves da sugestão do professor
+        //talvez adicionar um opção de imprimir, ao inves da sugestão do professor
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
 
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]){
                 if(!serverRunning){
                     if(openServer(&sockfd, serverPortNumber) == 0){
                         serverRunning = true;
-                        serverThread = std::thread(runServer, &serverRunning, serverPortNumber, sockfd);
+                        serverThread = std::thread(runServer, &serverRunning, serverPortNumber, sockfd, l);
                     }
                 }else{
                     std::cout << "O servidor já está no ar!" << std::endl;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]){
                 closeServer(&serverRunning, sockfd, &serverThread);
                 break;
             case 3:
-                
+                printList(l);
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -103,7 +104,7 @@ int openServer(int * sockfd, int serverPortNumber){
     return 0;
 }
 
-void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver/*, lista*/){
+void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver, list * l){
     int sockfdcli;
     socklen_t clilen;
     struct sockaddr_in cli_addr;
@@ -116,7 +117,7 @@ void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver/*, l
         sockfdcli = accept(sockfdserver, (struct sockaddr *) &cli_addr, &clilen);
         if(sockfdcli != -1){
             clientsSocksFds.push_back(sockfdcli);
-            std::thread clientThread(processRequest, sockfdcli);
+            std::thread clientThread(processRequest, sockfdcli, l);
             clientsProcessingThreads.push_back(std::move(clientThread));
         }
     }
@@ -134,7 +135,7 @@ void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver/*, l
     }
 }
 
-void processRequest(int sockfdcli){
+void processRequest(int sockfdcli, list * l){
     char buffer[REQUEST_BUFFER_SIZE];
 
     while(true){
@@ -147,9 +148,10 @@ void processRequest(int sockfdcli){
         }
 
         request_t * request = strToRequest(buffer);
-        bzero(buffer, REQUEST_BUFFER_SIZE);    
+        bzero(buffer, REQUEST_BUFFER_SIZE);
         switch(request->op){
             case ADD:
+                add(l, createNodeValue(request->name, request->content, request->date));
                 break;
             case LIST:
                 break;

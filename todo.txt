@@ -1,5 +1,6 @@
-- Server
-    - Ver a lista
+- OK Server
+    - OK Ver a lista
+    - Operacao de listagem
 
 - Client
     - Menu 3 opções:
@@ -17,7 +18,8 @@
         - OK Sair
 
 - OK Criar a struct para os arquivos e função para convertela em string no arquivo socketUtils.h
-- Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
+- OK Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
+    - Falta metodos de remoção
 - DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
 
 - OK Struct
@@ -27,5 +29,5 @@
     - OK Data [19](2022-09-13T00:00:00) pegar datetime now
 
 
-- Adicioanr uma opção de evniar qualquer mensagem para o servidor través de uma flag
+- Adicioanr uma opção de evniar qualquer mensagem para o servidor través de uma flag, algo como um modo debug através dos args
 - Liberar memórias e fechar conexões

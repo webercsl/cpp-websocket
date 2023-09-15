@@ -38,6 +38,7 @@ int main(int argc, char *argv[]){
             case 1:
                 if(!connected){
                     connected = establishConnection(argv[1], hostPortNumber, &sockfd) == 0;
+                    if(connected) std::cout << "Conexão estabelecida com sucesso." << std::endl;
                 }else{
                     std::cout << "Conexão com o servidor já foi estabelecida!" << std::endl;
                 }
