@@ -1,9 +1,12 @@
-- Criar o novo client
+- Server
+    - Ver a lista
+
+- Client
     - Menu 3 opções:
         - OK Enviar arquivo
             - OK Estabelecer conexão
             - OK Cadastrar informações da struct
-            - OK Transfformar em string
+            - OK Transformar em string
             - OK Enviar
 
         - Ver fila

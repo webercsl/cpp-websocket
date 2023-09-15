@@ -26,6 +26,7 @@ int main(int argc, char *argv[]){
         std::cout << "[1] - Abrir servidor" << std::endl;
         std::cout << "[2] - Fechar servidor" << std::endl;
         std::cout << "[3] - Mostrar lista de arquivos" << std::endl;
+        //talvez adicionar um opção de impriri, ao inves da sugestão do professor
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
 
@@ -145,7 +146,14 @@ void processRequest(int sockfdcli){
             return;
         }
 
-        //adicionar na fila
+        request_t * request = strToRequest(buffer);
+        bzero(buffer, REQUEST_BUFFER_SIZE);    
+        switch(request->op){
+            case ADD:
+                break;
+            case LIST:
+                break;
+        }
 
         int writeResult = write(sockfdcli,"Request recived",15);
         if (writeResult < 0){
