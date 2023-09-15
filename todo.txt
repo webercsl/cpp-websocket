@@ -17,8 +17,11 @@
 - Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
 - DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
 
-- Struct
-    - Operacao enum(0 - ADD, 1 - LIST)
-    - Nome do cliente char [50]
-    - Conteúdo [100]
-    - Data [19](2022-09-13T00:00:00) pegar datetime now
+- OK Struct
+    - OK Operacao enum(0 - ADD, 1 - LIST)
+    - OK Nome do cliente char [50]
+    - OK Conteúdo [100]
+    - OK Data [19](2022-09-13T00:00:00) pegar datetime now
+
+
+- Adicioanr uma opção de evniar qualquer mensagem para o servidor través de uma flag
