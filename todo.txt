@@ -15,7 +15,7 @@
 
 - Criar a struct para os arquivos e função para convertela em string no arquivo socketUtils.h
 - Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
-- Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
+- DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
 
 - Struct
     - Nome do cliente char [50]
