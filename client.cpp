@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[]){
     int returnCode = 0;
-    int connectCode = -1;
+    bool connected = false;
     int userInput, hostPortNumber, sockfd;
 
     returnCode = getServerPortNumber(argc, argv, &hostPortNumber);
@@ -16,10 +16,16 @@ int main(int argc, char *argv[]){
         std::cout << "Endereço do Host: " << argv[1] << std::endl;
         std::cout << "Porta do Host: " << hostPortNumber << std::endl;
 
-        std::cout << std::endl ;
+        std::cout << "Conexão com o servidor: ";
+        if(connected) std::cout << "Conectado";
+        else std::cout << "Desconectado";
+        std::cout << std::endl;
 
-        std::cout << "[1] - Enviar arquivo para impressão" << std::endl;
-        std::cout << "[2] - Ver fila de impressão" << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "[1] - Estabelecer conexão com o servidor" << std::endl;
+        std::cout << "[2] - Enviar arquivo para impressão" << std::endl;
+        std::cout << "[3] - Ver fila de impressão" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
         
@@ -30,13 +36,18 @@ int main(int argc, char *argv[]){
                 goto leave;
                 break;
             case 1:
-                if(connectCode < 0){
-                    connectCode = establishConnection(argv[1], hostPortNumber, &sockfd);
+                if(!connected){
+                    connected = establishConnection(argv[1], hostPortNumber, &sockfd) == 0;
                 }else{
-                    int a = sendNewAddRequest(sockfd);
+                    std::cout << "Conexão com o servidor já foi estabelecida!" << std::endl;
                 }
                 break;
             case 2:
+                if(connected){
+                    sendNewAddRequest(sockfd);
+                }else{
+                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
+                }
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -47,6 +58,9 @@ int main(int argc, char *argv[]){
     }
 
 leave:
+    if(connected){
+        shutdown(sockfd, SHUT_RDWR);
+    }
     return returnCode;
 }
 

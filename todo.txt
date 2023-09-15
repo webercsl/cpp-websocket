@@ -25,3 +25,4 @@
 
 
 - Adicioanr uma opção de evniar qualquer mensagem para o servidor través de uma flag
+- Liberar memórias e fechar conexões
