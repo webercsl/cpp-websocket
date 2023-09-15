@@ -1,10 +1,10 @@
 - Criar o novo client
     - Menu 3 opções:
-        - Enviar arquivo
+        - OK Enviar arquivo
             - OK Estabelecer conexão
-            - Cadastrar informações da struct
-            - Transfformar em string
-            - Enviar
+            - OK Cadastrar informações da struct
+            - OK Transfformar em string
+            - OK Enviar
 
         - Ver fila
             - Estabelecer conexão
@@ -13,7 +13,7 @@
 
         - OK Sair
 
-- Criar a struct para os arquivos e função para convertela em string no arquivo socketUtils.h
+- OK Criar a struct para os arquivos e função para convertela em string no arquivo socketUtils.h
 - Criar structs de fila para o servidor, talvez outro .h só para a fila e seus metodos.
 - DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
 
