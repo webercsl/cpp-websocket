@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <string.h>
 
-#define REQUEST_BUFFER_SIZE = 174
+#define REQUEST_BUFFER_SIZE 174
 
 enum op_codes{
     ADD = 0,
@@ -39,7 +39,22 @@ const char * requestToStr(request_t * request){
 }
 
 request_t * strToRequest(char * str){
+    request_t * request = (request_t *)malloc(sizeof(request_t));
 
+    char * slice;
+    slice = strtok(str, ";");
+    request->op = (op_codes)atoi(slice);
+
+    slice = strtok(NULL, ";");
+    strcpy(request->name, slice);
+
+    slice = strtok(NULL, ";");
+    strcpy(request->content, slice);
+
+    slice = strtok(NULL, ";");
+    strcpy(request->date, slice);
+
+    return request;
 }
 
 void pressAnyKeyToContinue(){

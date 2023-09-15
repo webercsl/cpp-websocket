@@ -34,7 +34,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 2:
-
+                
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
