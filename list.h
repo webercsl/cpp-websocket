@@ -22,15 +22,12 @@ nodeValue * createNodeValue(char *name, char *content, char *date){
 
     newNode->name = (char *) malloc(strlen(name));
     strcpy(newNode->name, name);
-    //free(name);
 
     newNode->content = (char *) malloc(strlen(content));
     strcpy(newNode->content, content);
-    //free(content);
 
     newNode->date = (char *) malloc(strlen(date));
     strcpy(newNode->date, date);
-    //free(date);    
 
     return newNode;
 }
@@ -75,21 +72,33 @@ void printNodeValue(nodeValue * n){
     }
 }
 
-void printList(list * l){
+std::string getListString(list * l){
     if(l != NULL){
+        std::string listString;
         node * searchNode = l->first;
         int position = 1;
 
         if(empty(l)){
-            std::cout << "Lista Vazia!";
+            return "Lista Vazia!";
         }else{
             while (searchNode != NULL)
             {
-                std::cout << "Posição " << position++ << std::endl << std::endl;
-                printNodeValue(searchNode->value);
+                listString += "Posição " + std::to_string(position) + "\n\n";
+                position++;
+                listString += "\tNome: " + std::string(searchNode->value->name) + "\n";
+                listString += "\tArquivo: " + std::string(searchNode->value->content) + "\n";
+                listString += "\tData: " + std::string(searchNode->value->date) + "\n";
+
+                if(searchNode->next != NULL){
+                    listString += "\n";
+                }
+
                 searchNode = searchNode->next;
-                std::cout << std::endl;
             }
+
+            return listString;
         }
+    }else{
+        return "Lista Vazia!";
     }
 }

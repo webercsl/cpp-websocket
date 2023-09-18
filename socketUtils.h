@@ -8,7 +8,7 @@
 #include <ctime>
 #include <iomanip>
 
-#define REQUEST_BUFFER_SIZE 174
+#define REQUEST_BUFFER_SIZE 2048//174 por request, tamanho de 2048 para o retorno da lista
 
 enum op_codes{
     ADD = 0,

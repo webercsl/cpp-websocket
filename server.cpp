@@ -26,8 +26,7 @@ int main(int argc, char *argv[]){
 
         std::cout << "[1] - Abrir servidor" << std::endl;
         std::cout << "[2] - Fechar servidor" << std::endl;
-        std::cout << "[3] - Mostrar lista de arquivos" << std::endl;
-        //talvez adicionar um opção de imprimir, ao inves da sugestão do professor
+        std::cout << "[3] - Ver fila de impressão" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
 
@@ -55,7 +54,7 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 3:
-                printList(l);
+                std::cout << getListString(l);
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -159,7 +158,7 @@ void processRequest(int sockfdcli, list * l){
                 strcpy(buffer, addFileToList(l, request));
                 break;
             case LIST:
-                strcpy(buffer, getListString(l));
+                strcpy(buffer, getListString(l).c_str());
                 break;
             default:
                 strcpy(buffer, "Operação não reconhecida");
@@ -169,7 +168,7 @@ void processRequest(int sockfdcli, list * l){
         free(request);
         int writeResult = write(sockfdcli, buffer, strlen(buffer));
         if (writeResult < 0){
-            //talez log em arquivo
+            //!!!
             return;
         }
     }
@@ -182,10 +181,6 @@ const char * addFileToList(list * l, request_t * request){
         add(l, createNodeValue(request->name, request->content, request->date));
         return "Registro adicionado a fila com sucesso.";
     }
-}
-
-const char * getListString(list * l){
-    return "Lista topzeira";
 }
 
 int getServerPortNumber(int argc, char *argv[], int * serverPortNumber){

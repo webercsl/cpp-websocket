@@ -103,7 +103,7 @@ int registerNewAddRequest(request_t ** request){
     std::cout << "Digite o seu nome:" << std::endl;
     std::cin.ignore().getline((*request)->name, sizeof((*request)->name));
 
-    std::cout << "Digite o conteúdo do arquivo" << std::endl;//Mudar para local do arquivo?
+    std::cout << "Digite o conteúdo do arquivo" << std::endl;
     std::cin.getline((*request)->content, sizeof((*request)->content));
 
     (*request)->op = ADD;
@@ -134,7 +134,7 @@ int sendRequest(int sockfd, request_t * request){
 
     int writeResult = write(sockfd, buffer, REQUEST_BUFFER_SIZE);
     if(writeResult < 0){
-        std::cout << "ERRO: Não foi possível realizar a escrita." <<std::endl;
+        std::cout << "ERRO: Não foi possível realizar a escrita." << std::endl;
         return 1;
     }
 
