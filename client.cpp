@@ -50,6 +50,13 @@ int main(int argc, char *argv[]){
                     std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
                 }
                 break;
+            case 3:
+                if(connected){
+                    sendNewListRequest(sockfd);
+                }else{
+                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
+                }
+                break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
                 continue;
@@ -90,8 +97,8 @@ int establishConnection(char * hostName, int hostPortNumber, int * sockfd){
     return 0;
 } 
 
-int registerNewRequest(request_t ** request){
-    *request = (request_t *) malloc(sizeof(request_t));
+int registerNewAddRequest(request_t ** request){
+    *request = initRequest();
 
     std::cout << "Digite o seu nome:" << std::endl;
     std::cin.ignore().getline((*request)->name, sizeof((*request)->name));
@@ -99,18 +106,30 @@ int registerNewRequest(request_t ** request){
     std::cout << "Digite o conteúdo do arquivo" << std::endl;//Mudar para local do arquivo?
     std::cin.getline((*request)->content, sizeof((*request)->content));
 
-    strcpy((*request)->date, getDateNowStr().c_str());
+    (*request)->op = ADD;
     system("clear");
     return 0;
 }
 
 int sendNewAddRequest(int sockfd){
     request_t * request;
+    registerNewAddRequest(&request);
+    return sendRequest(sockfd, request);
+}
+
+int sendNewListRequest(int sockfd){
+    request_t * request;
+    request = initRequest();
+    request->op = LIST;
+    strcpy(request->name, "-");
+    strcpy(request->content, "-");
+    return sendRequest(sockfd, request);
+}
+
+int sendRequest(int sockfd, request_t * request){
     char buffer[REQUEST_BUFFER_SIZE];
     bzero(buffer, REQUEST_BUFFER_SIZE);
 
-    registerNewRequest(&request);
-    request->op = ADD;
     strcpy(buffer, requestToStr(request).c_str());
 
     int writeResult = write(sockfd, buffer, REQUEST_BUFFER_SIZE);
@@ -122,6 +141,8 @@ int sendNewAddRequest(int sockfd){
     bzero(buffer, REQUEST_BUFFER_SIZE);
     int readResult = read(sockfd, buffer, REQUEST_BUFFER_SIZE);
     std::cout << buffer << std::endl;
+
+    free(request);
     return 0;
 }
 

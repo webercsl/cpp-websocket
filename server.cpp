@@ -67,7 +67,8 @@ int main(int argc, char *argv[]){
 
 leave:
     closeServer(&serverRunning, sockfd, &serverThread);
-                
+    //clear list mem
+
     return returnCode;
 }
 
@@ -147,7 +148,7 @@ void processRequest(int sockfdcli, list * l){
 
         int readResult = read(sockfdcli,buffer,REQUEST_BUFFER_SIZE);
         if (readResult < 0 || strlen(buffer) == 0) {
-            write(sockfdcli,"Error. Impossível ler do cliente. Esse problema pode ocorrer quando o servidor foi fechado com uma conexão ativa.", 116);
+            write(sockfdcli,"Erro. Impossível ler do cliente. Esse problema pode ocorrer quando o servidor foi fechado com uma conexão ativa.", 116);
             return;
         }
 
@@ -155,23 +156,36 @@ void processRequest(int sockfdcli, list * l){
         bzero(buffer, REQUEST_BUFFER_SIZE);
         switch(request->op){
             case ADD:
-                add(l, createNodeValue(request->name, request->content, request->date));
-                strcpy(buffer, "Registro adicionado a fila.");
+                strcpy(buffer, addFileToList(l, request));
                 break;
             case LIST:
-
+                strcpy(buffer, getListString(l));
                 break;
             default:
                 strcpy(buffer, "Operação não reconhecida");
                 break;
         }
 
+        free(request);
         int writeResult = write(sockfdcli, buffer, strlen(buffer));
         if (writeResult < 0){
             //talez log em arquivo
             return;
         }
     }
+}
+
+const char * addFileToList(list * l, request_t * request){
+    if(l->size == MAX_LIST_SIZE){
+        return "Pedido negado. Número máximo de 5 arquivos atingido.";
+    }else{
+        add(l, createNodeValue(request->name, request->content, request->date));
+        return "Registro adicionado a fila com sucesso.";
+    }
+}
+
+const char * getListString(list * l){
+    return "Lista topzeira";
 }
 
 int getServerPortNumber(int argc, char *argv[], int * serverPortNumber){
