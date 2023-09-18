@@ -29,9 +29,9 @@
 - A Fazer
     - Métodos de remoção da fila
     - DEIXAR POR ULTIMO Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
-        - Alterar, colcoar a opção de mandar imprimir tanto no server quanto no client
-    - Adicioanr uma opção de evniar qualquer mensagem para o servidor través de uma flag, algo como um modo debug através dos args
+        - Alterar, colocar a opção de mandar imprimir tanto no server quanto no client.
     - Liberar memórias e fechar conexões
-    - Verificar se o "Arquiv para impressão" é uma string texto ou um base 64, ou algo do tipo
+    - Verificar se o "Arquivo para impressão" é uma string texto ou um base 64, ou algo do tipo
     - Tratar erros de write no servidor
+    - SE SOBRAR TEMPO Adicionar uma opção de enviar qualquer mensagem para o servidor través de uma flag, algo como um modo debug através dos args
     - SE SOBRAR TEMPO Estudar maneira de utilizar um buffer menor
