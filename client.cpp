@@ -110,9 +110,13 @@ int registerNewAddRequest(request_t ** request){
 
     std::cout << "Digite o seu nome:" << std::endl;
     std::cin.ignore().getline((*request)->name, sizeof((*request)->name));
+    if(strlen((*request)->name) == 0)
+        strcpy((*request)->name, "-");
 
     std::cout << "Digite o conteúdo do arquivo" << std::endl;
     std::cin.getline((*request)->content, sizeof((*request)->content));
+    if(strlen((*request)->content) == 0)
+        strcpy((*request)->content, "-");
 
     (*request)->op = ADD;
     system("clear");
