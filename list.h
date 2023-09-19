@@ -12,7 +12,7 @@ struct node {
 	struct node * next;
 };
 
-struct list {
+struct queue {
     int size;
     node *first, *last;
 };
@@ -32,35 +32,35 @@ nodeValue * createNodeValue(char *name, char *content, char *date){
     return newNode;
 }
 
-void add(list * l, nodeValue * val){
-    if(l != NULL){
+void add(queue * q, nodeValue * val){
+    if(q != NULL){
         node * newNode = (node *) malloc(sizeof(node));
         newNode->next = NULL;
         newNode->value = val;
 
-        l->size = l->size + 1;
+        q->size = q->size + 1;
 
-        if(l->first == NULL){
-            l->first = newNode;
-            l->last = newNode;
+        if(q->first == NULL){
+            q->first = newNode;
+            q->last = newNode;
         }else{
-            l->last->next = newNode;
-            l->last = newNode;
+            q->last->next = newNode;
+            q->last = newNode;
         }
     }
 }
 
-list * initList(){
-    list * l = (list *) malloc(sizeof(list));
-    l->size = 0;
-    l->first = NULL;
-    l->last = NULL;
+queue * initList(){
+    queue * q = (queue *) malloc(sizeof(queue));
+    q->size = 0;
+    q->first = NULL;
+    q->last = NULL;
 
-    return l;
+    return q;
 }
 
-bool empty(list * l){
-    if(l->first == NULL) return true;
+bool empty(queue * q){
+    if(q->first == NULL) return true;
     return false;
 }
 
@@ -72,13 +72,13 @@ void printNodeValue(nodeValue * n){
     }
 }
 
-std::string getListString(list * l){
-    if(l != NULL){
+std::string getListString(queue * q){
+    if(q != NULL){
         std::string listString;
-        node * searchNode = l->first;
+        node * searchNode = q->first;
         int position = 1;
 
-        if(empty(l)){
+        if(empty(q)){
             return "Lista Vazia!";
         }else{
             while (searchNode != NULL)
@@ -103,14 +103,14 @@ std::string getListString(list * l){
     }
 }
 
-nodeValue * remove(list * l){
-    if(l != NULL && !empty(l)){
-        node * nodeToBeRemoved = l->first;
+nodeValue * remove(queue * q){
+    if(q != NULL && !empty(q)){
+        node * nodeToBeRemoved = q->first;
         nodeValue * valueRemoved = nodeToBeRemoved->value;
-        l->first = nodeToBeRemoved->next;
+        q->first = nodeToBeRemoved->next;
 
-        if(l->first == NULL)
-            l->last = NULL;
+        if(q->first == NULL)
+            q->last = NULL;
 
         free(nodeToBeRemoved);
         return valueRemoved;
@@ -119,13 +119,13 @@ nodeValue * remove(list * l){
     return NULL;
 }
 
-void clearList(list * l){
-    node * searchNode = l->first;
+void clearList(queue * q){
+    node * searchNode = q->first;
     nodeValue * valueAux;
     while (searchNode != NULL)
     {
         searchNode = searchNode->next;
-        valueAux = remove(l);
+        valueAux = remove(q);
         free(valueAux);
     }
 }

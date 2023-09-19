@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]){
     int returnCode = 0;
     int userInput, serverPortNumber, sockfd;
-    list * l = initList();
+    queue * q = initList();
     bool serverRunning = false;
     std::thread serverThread;
 
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
                 if(!serverRunning){
                     if(openServer(&sockfd, serverPortNumber) == 0){
                         serverRunning = true;
-                        serverThread = std::thread(runServer, &serverRunning, serverPortNumber, sockfd, l);
+                        serverThread = std::thread(runServer, &serverRunning, serverPortNumber, sockfd, q);
                     }
                 }else{
                     std::cout << "O servidor já está no ar!" << std::endl;
@@ -54,10 +54,10 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 3:
-                std::cout << getListString(l) << std::endl;
+                std::cout << getListString(q) << std::endl;
                 break;
             case 4:
-                std::cout << printListToFile(l) << std::endl;
+                std::cout << printListToFile(q) << std::endl;
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -69,8 +69,8 @@ int main(int argc, char *argv[]){
 
 leave:
     closeServer(&serverRunning, sockfd, &serverThread);
-    clearList(l);
-    free(l);
+    clearList(q);
+    free(q);
 
     return returnCode;
 }
@@ -112,7 +112,7 @@ int openServer(int * sockfd, int serverPortNumber){
     return 0;
 }
 
-void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver, list * l){
+void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver, queue * q){
     int sockfdcli;
     socklen_t clilen;
     struct sockaddr_in cli_addr;
@@ -125,7 +125,7 @@ void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver, lis
         sockfdcli = accept(sockfdserver, (struct sockaddr *) &cli_addr, &clilen);
         if(sockfdcli != -1){
             clientsSocksFds.push_back(sockfdcli);
-            std::thread clientThread(processRequest, sockfdcli, l);
+            std::thread clientThread(processRequest, sockfdcli, q);
             clientsProcessingThreads.push_back(std::move(clientThread));
         }
     }
@@ -143,7 +143,7 @@ void runServer(bool * serverRunning, int serverPortNumber, int sockfdserver, lis
     }
 }
 
-void processRequest(int sockfdcli, list * l){
+void processRequest(int sockfdcli, queue * q){
     char buffer[REQUEST_BUFFER_SIZE];
 
     while(true){
@@ -159,13 +159,13 @@ void processRequest(int sockfdcli, list * l){
         bzero(buffer, REQUEST_BUFFER_SIZE);
         switch(request->op){
             case ADD:
-                strcpy(buffer, addFileToList(l, request));
+                strcpy(buffer, addFileToList(q, request));
                 break;
             case LIST:
-                strcpy(buffer, getListString(l).c_str());
+                strcpy(buffer, getListString(q).c_str());
                 break;
             case PRINT:
-                strcpy(buffer, printListToFile(l));
+                strcpy(buffer, printListToFile(q));
                 break;
             default:
                 strcpy(buffer, "Operação não reconhecida");
@@ -181,27 +181,27 @@ void processRequest(int sockfdcli, list * l){
     }
 }
 
-const char * addFileToList(list * l, request_t * request){
-    if(l->size == MAX_LIST_SIZE){
+const char * addFileToList(queue * q, request_t * request){
+    if(q->size == MAX_LIST_SIZE){
         return "Pedido negado. Número máximo de 5 arquivos atingido.";
     }else{
-        add(l, createNodeValue(request->name, request->content, request->date));
+        add(q, createNodeValue(request->name, request->content, request->date));
         return "Registro adicionado a fila com sucesso.";
     }
 }
 
-const char * printListToFile(list * l){
-    if(empty(l))
+const char * printListToFile(queue * q){
+    if(empty(q))
         return "Lista vazia!";
 
     std::ofstream outfile;
     outfile.open(FILE_PATH, std::ios_base::app);
 
-    for(node * searchNode = l->first; searchNode != NULL; searchNode = searchNode->next){
+    for(node * searchNode = q->first; searchNode != NULL; searchNode = searchNode->next){
         outfile << searchNode->value->date << " - " << searchNode->value->name << " / " << searchNode->value->content << std::endl;
     }
 
-    clearList(l);
+    clearList(q);
     outfile.close();
     return "Lista impressa com sucesso.";
 }
