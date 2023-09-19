@@ -50,7 +50,7 @@ void add(queue * q, nodeValue * val){
     }
 }
 
-queue * initList(){
+queue * initQueue(){
     queue * q = (queue *) malloc(sizeof(queue));
     q->size = 0;
     q->first = NULL;
@@ -72,34 +72,34 @@ void printNodeValue(nodeValue * n){
     }
 }
 
-std::string getListString(queue * q){
+std::string getQueueString(queue * q){
     if(q != NULL){
-        std::string listString;
+        std::string queueString;
         node * searchNode = q->first;
         int position = 1;
 
         if(empty(q)){
-            return "Lista Vazia!";
+            return "Fila Vazia!";
         }else{
             while (searchNode != NULL)
             {
-                listString += "Posição " + std::to_string(position) + "\n\n";
+                queueString += "Posição " + std::to_string(position) + "\n\n";
                 position++;
-                listString += "\tNome: " + std::string(searchNode->value->name) + "\n";
-                listString += "\tArquivo: " + std::string(searchNode->value->content) + "\n";
-                listString += "\tData: " + std::string(searchNode->value->date) + "\n";
+                queueString += "\tNome: " + std::string(searchNode->value->name) + "\n";
+                queueString += "\tArquivo: " + std::string(searchNode->value->content) + "\n";
+                queueString += "\tData: " + std::string(searchNode->value->date) + "\n";
 
                 if(searchNode->next != NULL){
-                    listString += "\n";
+                    queueString += "\n";
                 }
 
                 searchNode = searchNode->next;
             }
 
-            return listString;
+            return queueString;
         }
     }else{
-        return "Lista Vazia!";
+        return "Fila Vazia!";
     }
 }
 
@@ -119,7 +119,7 @@ nodeValue * remove(queue * q){
     return NULL;
 }
 
-void clearList(queue * q){
+void clearQueue(queue * q){
     node * searchNode = q->first;
     nodeValue * valueAux;
     while (searchNode != NULL)

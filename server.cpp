@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]){
     int returnCode = 0;
     int userInput, serverPortNumber, sockfd;
-    queue * q = initList();
+    queue * q = initQueue();
     bool serverRunning = false;
     std::thread serverThread;
 
@@ -54,10 +54,10 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 3:
-                std::cout << getListString(q) << std::endl;
+                std::cout << getQueueString(q) << std::endl;
                 break;
             case 4:
-                std::cout << printListToFile(q) << std::endl;
+                std::cout << printQueueToFile(q) << std::endl;
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]){
 
 leave:
     closeServer(&serverRunning, sockfd, &serverThread);
-    clearList(q);
+    clearQueue(q);
     free(q);
 
     return returnCode;
@@ -159,13 +159,13 @@ void processRequest(int sockfdcli, queue * q){
         bzero(buffer, REQUEST_BUFFER_SIZE);
         switch(request->op){
             case ADD:
-                strcpy(buffer, addFileToList(q, request));
+                strcpy(buffer, addFileToQueue(q, request));
                 break;
             case LIST:
-                strcpy(buffer, getListString(q).c_str());
+                strcpy(buffer, getQueueString(q).c_str());
                 break;
             case PRINT:
-                strcpy(buffer, printListToFile(q));
+                strcpy(buffer, printQueueToFile(q));
                 break;
             default:
                 strcpy(buffer, "Operação não reconhecida");
@@ -181,8 +181,8 @@ void processRequest(int sockfdcli, queue * q){
     }
 }
 
-const char * addFileToList(queue * q, request_t * request){
-    if(q->size == MAX_LIST_SIZE){
+const char * addFileToQueue(queue * q, request_t * request){
+    if(q->size == MAX_QUEUE_SIZE){
         return "Pedido negado. Número máximo de 5 arquivos atingido.";
     }else{
         add(q, createNodeValue(request->name, request->content, request->date));
@@ -190,9 +190,9 @@ const char * addFileToList(queue * q, request_t * request){
     }
 }
 
-const char * printListToFile(queue * q){
+const char * printQueueToFile(queue * q){
     if(empty(q))
-        return "Lista vazia!";
+        return "Fila vazia!";
 
     std::ofstream outfile;
     outfile.open(FILE_PATH, std::ios_base::app);
@@ -201,9 +201,9 @@ const char * printListToFile(queue * q){
         outfile << searchNode->value->date << " - " << searchNode->value->name << " / " << searchNode->value->content << std::endl;
     }
 
-    clearList(q);
+    clearQueue(q);
     outfile.close();
-    return "Lista impressa com sucesso.";
+    return "Fila impressa com sucesso.";
 }
 
 int getServerPortNumber(int argc, char *argv[], int * serverPortNumber){
