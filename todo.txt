@@ -28,10 +28,10 @@
     - OK Sempre que esta fila de impressão chegar ao limite estabelecido ela deverá ser descarregada em um arquivo texto;
         - OK Alterar, colocar a opção de mandar imprimir tanto no server quanto no client.
     - OK Verificar se as strings estao vazias antes de mandar o request de add
+    - OK Liberar memórias e fechar conexões
 
 
 - A Fazer
-    - Liberar memórias e fechar conexões
     - Tratar erros de write no servidor
     - SE SOBRAR TEMPO Adicionar uma opção de enviar qualquer mensagem para o servidor través de uma flag, algo como um modo debug através dos args
     - SE SOBRAR TEMPO Estudar maneira de utilizar um buffer menor

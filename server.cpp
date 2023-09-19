@@ -69,7 +69,8 @@ int main(int argc, char *argv[]){
 
 leave:
     closeServer(&serverRunning, sockfd, &serverThread);
-    //clear list mem
+    clearList(l);
+    free(l);
 
     return returnCode;
 }
