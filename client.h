@@ -8,3 +8,4 @@ int registerNewAddRequest(request_t ** request);
 int sendNewAddRequest(int sockfd);
 int sendRequest(int sockfd, request_t * request);
 int sendNewListRequest(int sockfd);
+int sendNewPrintRequest(int sockfd);

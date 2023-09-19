@@ -102,3 +102,30 @@ std::string getListString(list * l){
         return "Lista Vazia!";
     }
 }
+
+nodeValue * remove(list * l){
+    if(l != NULL && !empty(l)){
+        node * nodeToBeRemoved = l->first;
+        nodeValue * valueRemoved = nodeToBeRemoved->value;
+        l->first = nodeToBeRemoved->next;
+
+        if(l->first == NULL)
+            l->last = NULL;
+
+        free(nodeToBeRemoved);
+        return valueRemoved;
+    }
+
+    return NULL;
+}
+
+void clearList(list * l){
+    node * searchNode = l->first;
+    nodeValue * valueAux;
+    while (searchNode != NULL)
+    {
+        searchNode = searchNode->next;
+        valueAux = remove(l);
+        free(valueAux);
+    }
+}

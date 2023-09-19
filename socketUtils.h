@@ -12,7 +12,8 @@
 
 enum op_codes{
     ADD = 0,
-    LIST = 1
+    LIST = 1,
+    PRINT = 2
 };
 
 struct request_t{

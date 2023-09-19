@@ -20,13 +20,13 @@ int main(int argc, char *argv[]){
         else std::cout << "Desligado";
 
         std::cout << std::endl << "Porta: " << serverPortNumber << std::endl;
-        std::cout << "Número de arquivos na fila: " << l->size << std::endl;
 
         std::cout << std::endl ;
 
         std::cout << "[1] - Abrir servidor" << std::endl;
         std::cout << "[2] - Fechar servidor" << std::endl;
         std::cout << "[3] - Ver fila de impressão" << std::endl;
+        std::cout << "[4] - Imprimir" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
 
@@ -54,7 +54,10 @@ int main(int argc, char *argv[]){
                 }
                 break;
             case 3:
-                std::cout << getListString(l);
+                std::cout << getListString(l) << std::endl;
+                break;
+            case 4:
+                std::cout << printListToFile(l) << std::endl;
                 break;
             default:
                 std::cout << "Digite uma entrada válida!" << std::endl;
@@ -147,7 +150,7 @@ void processRequest(int sockfdcli, list * l){
 
         int readResult = read(sockfdcli,buffer,REQUEST_BUFFER_SIZE);
         if (readResult < 0 || strlen(buffer) == 0) {
-            write(sockfdcli,"Erro. Impossível ler do cliente. Esse problema pode ocorrer quando o servidor foi fechado com uma conexão ativa.", 116);
+            int writeResult = write(sockfdcli,"Erro. Impossível ler do cliente. Esse problema pode ocorrer quando o servidor foi fechado com uma conexão ativa.", 116);
             return;
         }
 
@@ -159,6 +162,9 @@ void processRequest(int sockfdcli, list * l){
                 break;
             case LIST:
                 strcpy(buffer, getListString(l).c_str());
+                break;
+            case PRINT:
+                strcpy(buffer, printListToFile(l));
                 break;
             default:
                 strcpy(buffer, "Operação não reconhecida");
@@ -181,6 +187,22 @@ const char * addFileToList(list * l, request_t * request){
         add(l, createNodeValue(request->name, request->content, request->date));
         return "Registro adicionado a fila com sucesso.";
     }
+}
+
+const char * printListToFile(list * l){
+    if(empty(l))
+        return "Lista vazia!";
+
+    std::ofstream outfile;
+    outfile.open(FILE_PATH, std::ios_base::app);
+
+    for(node * searchNode = l->first; searchNode != NULL; searchNode = searchNode->next){
+        outfile << searchNode->value->date << " - " << searchNode->value->name << " / " << searchNode->value->content << std::endl;
+    }
+
+    clearList(l);
+    outfile.close();
+    return "Lista impressa com sucesso.";
 }
 
 int getServerPortNumber(int argc, char *argv[], int * serverPortNumber){

@@ -35,3 +35,5 @@
     - Tratar erros de write no servidor
     - SE SOBRAR TEMPO Adicionar uma opção de enviar qualquer mensagem para o servidor través de uma flag, algo como um modo debug através dos args
     - SE SOBRAR TEMPO Estudar maneira de utilizar um buffer menor
+    - Renomear list para queue
+    - Vrificar se as strings estao vazias antes de mandar o request de add

@@ -26,6 +26,7 @@ int main(int argc, char *argv[]){
         std::cout << "[1] - Estabelecer conexão com o servidor" << std::endl;
         std::cout << "[2] - Enviar arquivo para impressão" << std::endl;
         std::cout << "[3] - Ver fila de impressão" << std::endl;
+        std::cout << "[4] - Imprimir" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
         std::cout << "Digite a opção desejada: " << std::endl;
         
@@ -53,6 +54,13 @@ int main(int argc, char *argv[]){
             case 3:
                 if(connected){
                     sendNewListRequest(sockfd);
+                }else{
+                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
+                }
+                break;
+            case 4:
+                if(connected){
+                    sendNewPrintRequest(sockfd);
                 }else{
                     std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
                 }
@@ -121,6 +129,15 @@ int sendNewListRequest(int sockfd){
     request_t * request;
     request = initRequest();
     request->op = LIST;
+    strcpy(request->name, "-");
+    strcpy(request->content, "-");
+    return sendRequest(sockfd, request);
+}
+
+int sendNewPrintRequest(int sockfd){
+    request_t * request;
+    request = initRequest();
+    request->op = PRINT;
     strcpy(request->name, "-");
     strcpy(request->content, "-");
     return sendRequest(sockfd, request);
