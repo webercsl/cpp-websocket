@@ -1,183 +1,298 @@
-#include "client.h"
+#undef UNICODE
 
-int main(int argc, char *argv[]){
+#define WIN32_LEAN_AND_MEAN
+
+#include <iostream>
+#include <string.h>
+#include <ctime>
+#include <iomanip>
+#include <winsock2.h>
+#include <windows.h>
+#include <ws2tcpip.h>
+
+#pragma comment (lib, "Ws2_32.lib")
+#define REQUEST_BUFFER_SIZE 2048
+
+enum op_codes {
+    ADD = 0,
+    LIST = 1,
+    PRINT = 2
+};
+
+struct request_t {
+    op_codes op;
+    char nome[50], informacao[100], data[20];
+};
+
+int portaServidor(int argc, char* argv[], int* numeroPorta);
+int estabelecerConexao(char* hostName, int numeroPorta, SOCKET* sockfd);
+int registrarNovaRequisicao(request_t** request);
+int enviarNovaRequisicao(SOCKET sockfd);
+int enviarNovaListaRequisicao(SOCKET sockfd);
+int enviarNovaRequisicaoImpressao(SOCKET sockfd);
+int enviarRequisicao(SOCKET sockfd, request_t* request);
+
+std::string pegarData() {
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+    auto timeStr = oss.str();
+    
+    return timeStr;
+}
+
+std::string requestToStr(request_t* request) {
+    if (request == NULL)
+        return "";
+
+    std::string requestText = "";
+    requestText += std::to_string((int)request->op);
+    requestText += std::string(";");
+
+    requestText += std::string(request->nome);
+    requestText += std::string(";");
+
+    requestText += std::string(request->informacao);
+    requestText += std::string(";");
+
+    requestText += std::string(request->data);
+    requestText += std::string(";");
+
+    return requestText;
+}
+
+request_t* initRequest() {
+    request_t* request = (request_t*)malloc(sizeof(request_t));
+    memset(request->nome, 0, sizeof(request->nome));
+    memset(request->informacao, 0, sizeof(request->informacao));
+    memset(request->data, 0, sizeof(request->data));
+    strcpy_s(request->data, sizeof(request->data), pegarData().c_str());
+
+    return request;
+}
+
+request_t* strToRequest(char* str) {
+    request_t* request = initRequest();
+
+    char* slice;
+    slice = strtok(str, ";");
+    request->op = (op_codes)atoi(slice);
+
+    slice = strtok(NULL, ";");
+    strcpy_s(request->nome, sizeof(request->nome), slice);
+
+    slice = strtok(NULL, ";");
+    strcpy_s(request->informacao, sizeof(request->informacao), slice);
+
+    slice = strtok(NULL, ";");
+    strcpy_s(request->data, sizeof(request->data), slice);
+
+    return request;
+}
+
+void pressAnyKeyToContinue() {
+    std::cout << std::endl << "Pressione qualquer tecla para continuar..";
+    std::cin.ignore().get();
+}
+
+int main(int argc, char* argv[]) {
     int returnCode = 0;
     bool connected = false;
-    int userInput, hostPortNumber, sockfd;
+    int userInput, numeroPorta;
+    SOCKET sockfd;
 
-    returnCode = getServerPortNumber(argc, argv, &hostPortNumber);
-    if(returnCode != 0) goto leave;
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "ERRO: Falha ao inicializar o Winsock." << std::endl;
+        return 1;
+    }
 
-    system("clear");
-    while (true)
-    {
-        std::cout << "======== Menu ========" << std::endl <<std::endl;
+    returnCode = portaServidor(argc, argv, &numeroPorta);
+    if (returnCode != 0) goto leave;
 
-        std::cout << "Endereço do Host: " << argv[1] << std::endl;
-        std::cout << "Porta do Host: " << hostPortNumber << std::endl;
+    system("cls");
+    while (true) {
+        std::cout << "======== Menu ========" << std::endl << std::endl;
 
-        std::cout << "Conexão com o servidor: ";
-        if(connected) std::cout << "Conectado";
+        std::cout << "Endereco do Host: " << argv[1] << std::endl;
+        std::cout << "Porta do Host: " << numeroPorta << std::endl;
+
+        std::cout << "Conexao com o servidor: ";
+        if (connected) std::cout << "Conectado";
         else std::cout << "Desconectado";
         std::cout << std::endl;
 
         std::cout << std::endl;
 
-        std::cout << "[1] - Estabelecer conexão com o servidor" << std::endl;
-        std::cout << "[2] - Enviar arquivo para impressão" << std::endl;
-        std::cout << "[3] - Ver fila de impressão" << std::endl;
+        std::cout << "[1] - Estabelecer conexao com o servidor" << std::endl;
+        std::cout << "[2] - Enviar arquivo para impressao" << std::endl;
+        std::cout << "[3] - Ver fila de impressao" << std::endl;
         std::cout << "[4] - Imprimir" << std::endl;
         std::cout << "[0] - Sair" << std::endl << std::endl;
-        std::cout << "Digite a opção desejada: " << std::endl;
-        
+        std::cout << "Digite a opcao desejada: " << std::endl;
+
         std::cin >> userInput;
-        system("clear");
-        switch(userInput){
-            case 0:
-                goto leave;
-                break;
-            case 1:
-                if(!connected){
-                    connected = establishConnection(argv[1], hostPortNumber, &sockfd) == 0;
-                    if(connected) std::cout << "Conexão estabelecida com sucesso." << std::endl;
-                }else{
-                    std::cout << "Conexão com o servidor já foi estabelecida!" << std::endl;
-                }
-                break;
-            case 2:
-                if(connected){
-                    sendNewAddRequest(sockfd);
-                }else{
-                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
-                }
-                break;
-            case 3:
-                if(connected){
-                    sendNewListRequest(sockfd);
-                }else{
-                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
-                }
-                break;
-            case 4:
-                if(connected){
-                    sendNewPrintRequest(sockfd);
-                }else{
-                    std::cout << "Conexão com o servidor não foi estabelecida." << std::endl;
-                }
-                break;
-            default:
-                std::cout << "Digite uma entrada válida!" << std::endl;
-                continue;
+        system("cls");
+        switch (userInput) {
+        case 0:
+            goto leave;
+            break;
+        case 1:
+            if (!connected) {
+                connected = estabelecerConexao(argv[1], numeroPorta, &sockfd) == 0;
+                if (connected) std::cout << "Conexao estabelecida com sucesso." << std::endl;
+            }
+            else {
+                std::cout << "Conexao com o servidor ja foi estabelecida!" << std::endl;
+            }
+            break;
+        case 2:
+            if (connected) {
+                enviarNovaRequisicao(sockfd);
+            }
+            else {
+                std::cout << "Conexao com o servidor nao foi estabelecida." << std::endl;
+            }
+            break;
+        case 3:
+            if (connected) {
+                enviarNovaListaRequisicao(sockfd);
+            }
+            else {
+                std::cout << "Conexao com o servidor nao foi estabelecida." << std::endl;
+            }
+            break;
+        case 4:
+            if (connected) {
+                enviarNovaRequisicaoImpressao(sockfd);
+            }
+            else {
+                std::cout << "Conexao com o servidor nao foi estabelecida." << std::endl;
+            }
+            break;
+        default:
+            std::cout << "Digite uma entrada valida!" << std::endl;
+            continue;
         }
         pressAnyKeyToContinue();
-        system("clear");
+        system("cls");
     }
 
 leave:
-    if(connected){
-        shutdown(sockfd, SHUT_RDWR);
+    if (connected) {
+        shutdown(sockfd, SD_BOTH);
+        closesocket(sockfd);
     }
+
+    WSACleanup();
     return returnCode;
 }
 
-int establishConnection(char * hostName, int hostPortNumber, int * sockfd){
+int estabelecerConexao(char* hostName, int numeroPorta, SOCKET* sockfd) {
     struct sockaddr_in serverAddress;
-    struct hostent *server = gethostbyname(hostName);
+    struct hostent* server = gethostbyname(hostName);
 
     *sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (*sockfd < 0){
-        std::cout << "ERRO: não foi possível abrir o socket." << std::endl;
+    if (*sockfd == INVALID_SOCKET) {
+        std::cerr << "ERRO: Nao foi possivel abrir o socket." << std::endl;
         return 1;
     }
-    
-    bzero((char *) &serverAddress, sizeof(serverAddress));
 
+    memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
 
-    bcopy((char *)server->h_addr, (char *)&serverAddress.sin_addr.s_addr, server->h_length);
-    serverAddress.sin_port = htons(hostPortNumber);
+    memcpy(&serverAddress.sin_addr.s_addr, server->h_addr, server->h_length);
+    serverAddress.sin_port = htons(numeroPorta);
 
-    if (connect(*sockfd,(struct sockaddr *) &serverAddress,sizeof(serverAddress)) < 0){
-        std::cout << "ERRO: não foi possível estabelecer uma conexão com o host." << std::endl;
+    if (connect(*sockfd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
+        std::cerr << "ERRO: Nao foi possivel estabelecer uma conexao com o host." << std::endl;
         return 1;
     }
 
     return 0;
-} 
+}
 
-int registerNewAddRequest(request_t ** request){
+int registrarNovaRequisicao(request_t ** request){
     *request = initRequest();
 
     std::cout << "Digite o seu nome:" << std::endl;
-    std::cin.ignore().getline((*request)->name, sizeof((*request)->name));
-    if(strlen((*request)->name) == 0)
-        strcpy((*request)->name, "-");
+    std::cin.ignore().getline((*request)->nome, sizeof((*request)->nome));
+    if(strlen((*request)->nome) == 0)
+        strcpy((*request)->nome, "-");
 
-    std::cout << "Digite o conteúdo do arquivo" << std::endl;
-    std::cin.getline((*request)->content, sizeof((*request)->content));
-    if(strlen((*request)->content) == 0)
-        strcpy((*request)->content, "-");
+    std::cout << "Digite o conteudo do arquivo:" << std::endl;
+    std::cin.getline((*request)->informacao, sizeof((*request)->informacao));
+    if(strlen((*request)->informacao) == 0)
+        strcpy((*request)->informacao, "-");
 
     (*request)->op = ADD;
-    system("clear");
+    system("cls");
     return 0;
 }
 
-int sendNewAddRequest(int sockfd){
+int enviarNovaRequisicao(SOCKET sockfd){
     request_t * request;
-    registerNewAddRequest(&request);
-    return sendRequest(sockfd, request);
+    registrarNovaRequisicao(&request);
+    return enviarRequisicao(sockfd, request);
 }
 
-int sendNewListRequest(int sockfd){
+int enviarNovaListaRequisicao(SOCKET sockfd){
     request_t * request;
     request = initRequest();
     request->op = LIST;
-    strcpy(request->name, "-");
-    strcpy(request->content, "-");
-    return sendRequest(sockfd, request);
+    strcpy(request->nome, "-");
+    strcpy(request->informacao, "-");
+    return enviarRequisicao(sockfd, request);
 }
 
-int sendNewPrintRequest(int sockfd){
+int enviarNovaRequisicaoImpressao(SOCKET sockfd){
     request_t * request;
     request = initRequest();
     request->op = PRINT;
-    strcpy(request->name, "-");
-    strcpy(request->content, "-");
-    return sendRequest(sockfd, request);
+    strcpy(request->nome, "-");
+    strcpy(request->informacao, "-");
+    return enviarRequisicao(sockfd, request);
 }
 
-int sendRequest(int sockfd, request_t * request){
+int enviarRequisicao(SOCKET sockfd, request_t* request) {
     char buffer[REQUEST_BUFFER_SIZE];
-    bzero(buffer, REQUEST_BUFFER_SIZE);
+    memset(buffer, 0, REQUEST_BUFFER_SIZE);
 
-    strcpy(buffer, requestToStr(request).c_str());
+    strcpy_s(buffer, REQUEST_BUFFER_SIZE, requestToStr(request).c_str());
 
-    int writeResult = write(sockfd, buffer, REQUEST_BUFFER_SIZE);
-    if(writeResult < 0){
-        std::cout << "ERRO: Não foi possível realizar a escrita." << std::endl;
+    int writeResult = send(sockfd, buffer, REQUEST_BUFFER_SIZE, 0); // Usamos send em vez de write
+    if (writeResult == SOCKET_ERROR) {
+        std::cerr << "ERRO: Nao foi possivel realizar a escrita." << std::endl;
         return 1;
     }
 
-    bzero(buffer, REQUEST_BUFFER_SIZE);
-    int readResult = read(sockfd, buffer, REQUEST_BUFFER_SIZE);
+    memset(buffer, 0, REQUEST_BUFFER_SIZE); // Limpe o buffer antes de usá-lo novamente
+    int readResult = recv(sockfd, buffer, REQUEST_BUFFER_SIZE, 0); // Usamos recv em vez de read
+    if (readResult == SOCKET_ERROR) {
+        std::cerr << "ERRO: Nao foi possivel receber dados do servidor." << std::endl;
+        return 1;
+    }
+
     std::cout << buffer << std::endl;
 
     free(request);
     return 0;
 }
 
-int getServerPortNumber(int argc, char *argv[], int * hostPortNumber){
+
+int portaServidor(int argc, char *argv[], int * numeroPorta){
     if (argc < 3) {
-        std::cout << "ERRO: Argumentos insuficientes. Uso: " << argv[0] << " [endereço do host] [porta]" << std::endl;
+        std::cout << "ERRO: Argumentos insuficientes. Uso: " << argv[0] << " [endereco do host] [porta]" << std::endl;
         return 1;
     }
 
     if (gethostbyname(argv[1]) == NULL) {
-        std::cout << "ERRO: Endereço do host não encontrado. " << std::endl;
+        std::cout << "ERRO: Endereco do host nao encontrado. " << std::endl;
         return 1;
     }
 
-    *hostPortNumber = atoi(argv[2]);
+    *numeroPorta = atoi(argv[2]);
     return 0;
 }
